@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Notification Portal</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Send Notification</h2>
+        <form id="notificationForm">
+            <div class="input-group">
+                <label for="name">Your Name</label>
+                <input type="text" id="name" required placeholder="Enter your name">
+            </div>
+            <div class="input-group">
+                <label for="message">Message / Details</label>
+                <textarea id="message" required placeholder="Type your message here..."></textarea>
+            </div>
+            <button type="submit">Send to Telegram 🚀</button>
+        </form>
+        <div id="responseMessage"></div>
+    </div>
+
+    <script>
+        document.getElementById('notificationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            const responseDiv = document.getElementById('responseMessage');
+
+            responseDiv.textContent = "Sending...";
+
+            try {
+                // Calls the Vercel Serverless Function inside /api/submit.py
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, message })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    responseDiv.style.color = "green";
+                    responseDiv.textContent = result.message;
+                    document.getElementById('notificationForm').reset();
+                } else {
+                    responseDiv.style.color = "red";
+                    responseDiv.textContent = result.message;
+                }
+            } catch (error) {
+                responseDiv.style.color = "red";
+                responseDiv.textContent = "An error occurred. Check connection.";
+            }
+        });
+    </script>
+</body>
+</html>
